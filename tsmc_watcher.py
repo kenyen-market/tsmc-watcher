@@ -100,3 +100,19 @@ print("⏱️ 開始監控台積電")
 while True:
     schedule.run_pending()
     time.sleep(30)
+    import threading
+import time
+from flask import Flask
+
+# 啟動 Flask 讓 Render 偵測到 port 開啟
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "TSMC Watcher is running."
+
+def run_web():
+    app.run(host='0.0.0.0', port=10000)
+
+# 在背景執行 Flask
+threading.Thread(target=run_web).start()
