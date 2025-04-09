@@ -1,4 +1,3 @@
-!pip install yfinance
 import os
 
 # Set environment variables
