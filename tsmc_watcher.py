@@ -20,7 +20,6 @@ EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 EMAIL_RECEIVER = os.environ["EMAIL_RECEIVER"]
 
 # ... (Rest of your code)
-!pip install schedule
 import yfinance as yf
 import pandas as pd
 import schedule
