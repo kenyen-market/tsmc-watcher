@@ -1,11 +1,3 @@
-import os
-
-# Set environment variables
-os.environ["EMAIL_SENDER"] = "your_email@gmail.com"  # Replace with your email
-os.environ["EMAIL_PASSWORD"] = "your_email_password"  # Replace with your email password
-os.environ["EMAIL_RECEIVER"] = "recipient_email@example.com"  # Replace with the recipient's email
-
-
 import yfinance as yf
 import pandas as pd
 import schedule
@@ -13,106 +5,89 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime, time as dt_time
-
-EMAIL_SENDER = os.environ["EMAIL_SENDER"]
-EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
-EMAIL_RECEIVER = os.environ["EMAIL_RECEIVER"]
-
-# ... (Rest of your code)
-import yfinance as yf
-import pandas as pd
-import schedule
-import time
-import smtplib
+from flask import Flask
+import threading
 import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from datetime import datetime, time as dt_time
 
-EMAIL_SENDER = os.environ["EMAIL_SENDER"]
-EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
-EMAIL_RECEIVER = os.environ["EMAIL_RECEIVER"]
+# === 設定區 ===
+STOCK_SYMBOL = "2330.TW"
+CHECK_INTERVAL = 300  # 每 5 分鐘檢查一次
+GMAIL_USER = "你的Gmail帳號@gmail.com"
+GMAIL_PASSWORD = "應用程式密碼"
+TO_EMAIL = "你要接收通知的Email"
 
-has_broken_sma20 = False
-has_dropped_5_percent = False
-break_price = None
+# === 狀態紀錄 ===
+last_below_ma = False
+last_alert_5_percent = False
+drop_start_price = None
 
-def is_market_open():
-    now = datetime.now().time()
-    return dt_time(9, 0) <= now <= dt_time(13, 30)
-
+# === 發送 Email 通知 ===
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
+    msg["From"] = GMAIL_USER
+    msg["To"] = TO_EMAIL
+    msg["Subject"] = subject
+
+    msg.attach(MIMEText(body, "plain"))
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
-        server.quit()
-        print("✅ Email 已寄出")
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_USER, GMAIL_PASSWORD)
+            server.send_message(msg)
+        print(f"已發送 Email：{subject}")
     except Exception as e:
-        print(f"❌ Email 發送失敗: {e}")
+        print(f"Email 發送失敗：{e}")
 
-def check_tsmc():
-    global has_broken_sma20, break_price, has_dropped_5_percent
+# === 檢查股價 ===
+def check_tsmc_price():
+    global last_below_ma, last_alert_5_percent, drop_start_price
 
-    if not is_market_open():
-        print("⏳ 非開盤時間，跳過")
-        return
+    try:
+        df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
+        df["MA20"] = df["Close"].rolling(window=20).mean()
 
-    df = yf.Ticker("2330.TW").history(period="2mo", interval="1d")
-    df["SMA20"] = df["Close"].rolling(window=20).mean()
-    if df.shape[0] < 20:
-        print("⚠️ 資料不足")
-        return
+        current_price = df["Close"].iloc[-1]
+        current_ma20 = df["MA20"].iloc[-1]
 
-    close = df["Close"].iloc[-1]
-    sma20 = df["SMA20"].iloc[-1]
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] 收盤: {close:.2f}, SMA20: {sma20:.2f}")
+        print(f"目前股價：{current_price}，20日均線：{current_ma20}")
 
-    if close < sma20:
-        if not has_broken_sma20:
-            has_broken_sma20 = True
-            break_price = close
-            has_dropped_5_percent = False
-            send_email("⚠️ 跌破20日均線", f"台積電收盤 {close:.2f} 跌破均線 {sma20:.2f}")
+        if current_price < current_ma20:
+            if not last_below_ma:
+                send_email("【台積電提醒】跌破20日均線", f"目前股價：{current_price}，已跌破20日均線：{current_ma20}")
+                last_below_ma = True
+                drop_start_price = current_price
+                last_alert_5_percent = False
+            elif drop_start_price and current_price < drop_start_price * 0.95 and not last_alert_5_percent:
+                send_email("【台積電警示】跌破20日均線後再跌5%以上", f"目前股價：{current_price}，自跌破價：{drop_start_price}")
+                last_alert_5_percent = True
         else:
-            drop_percent = (break_price - close) / break_price
-            if drop_percent >= 0.05 and not has_dropped_5_percent:
-                has_dropped_5_percent = True
-                send_email("⚠️ 跌破後再跌5%", f"從 {break_price:.2f} 跌至 {close:.2f}，超過5%")
-    else:
-        if has_broken_sma20:
-            print("✅ 回到均線上，重置狀態")
-        has_broken_sma20 = False
-        has_dropped_5_percent = False
-        break_price = None
+            last_below_ma = False
+            last_alert_5_percent = False
+            drop_start_price = None
 
-schedule.every(5).minutes.do(check_tsmc)
+    except Exception as e:
+        print(f"檢查時出錯：{e}")
 
-print("⏱️ 開始監控台積電")
-while True:
-    schedule.run_pending()
-    time.sleep(30)
-    import threading
-import time
-from flask import Flask
+# === 排程每 5 分鐘執行一次 ===
+schedule.every(CHECK_INTERVAL).seconds.do(check_tsmc_price)
 
-# 啟動 Flask 讓 Render 偵測到 port 開啟
+# === 啟動 Flask 偽 Web Server 讓 Render 不報錯 ===
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "TSMC Watcher is running."
+    return "TSMC watcher is running."
 
 def run_web():
-    app.run(host='0.0.0.0', port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
-# 在背景執行 Flask
-threading.Thread(target=run_web).start()
+# === 主程式 ===
+if __name__ == "__main__":
+    # 啟動 Flask 背景執行
+    threading.Thread(target=run_web).start()
+
+    # 持續執行排程任務
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
