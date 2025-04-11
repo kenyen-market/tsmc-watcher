@@ -14,9 +14,9 @@ import os
 # === 設定區 ===
 STOCK_SYMBOL = "2330.TW"
 CHECK_INTERVAL = 300  # 每 5 分鐘檢查一次
-GMAIL_USER = "你的Gmail帳號@gmail.com"
-GMAIL_PASSWORD = "應用程式密碼"
-TO_EMAIL = "你要接收通知的Email"
+GMAIL_USER = "youraddress@gmail.com"
+GMAIL_PASSWORD = "password"
+TO_EMAIL = "recipient@gmail.com"
 
 # === 狀態紀錄 ===
 last_below_ma = False
