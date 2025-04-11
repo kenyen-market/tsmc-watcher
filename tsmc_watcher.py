@@ -23,13 +23,15 @@ drop_start_price = None
 startup_email_sent = False  # 啟動通知是否已寄出
 
 # === 發送 Email 通知 ===
+from email.header import Header
+
 def send_email(subject, body):
     msg = MIMEMultipart()
     msg["From"] = GMAIL_USER
     msg["To"] = TO_EMAIL
-    msg["Subject"] = subject
+    msg["Subject"] = Header(subject, "utf-8")  # 修正主旨編碼問題
 
-    msg.attach(MIMEText(body, "plain"))
+    msg.attach(MIMEText(body, "plain", "utf-8"))  # 修正內文編碼問題
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
