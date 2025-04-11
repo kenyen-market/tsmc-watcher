@@ -25,7 +25,7 @@ startup_email_sent = False  # 啟動通知是否已寄出
 # === 發送 Email 通知 ===
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg["From"] = formataddr(("TSMC Watcher", GMAIL_USER))  # 這裡改成純 ASCII 的英文名稱
+    msg["From"] = formataddr(("TSMC Watcher", GMAIL_USER))  # 這裡用 ASCII 名稱
     msg["To"] = TO_EMAIL
     msg["Subject"] = Header(subject, "utf-8")
     msg.attach(MIMEText(body, "plain", "utf-8"))
