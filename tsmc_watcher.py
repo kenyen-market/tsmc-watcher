@@ -86,6 +86,7 @@ def run_web():
 
 # === 主程式 ===
 if __name__ == "__main__":
+    send_email("Test", "This is a test email.")
 # 寄送啟動通知 Email
     send_email("TSMC Watcher 啟動通知", "監控系統已成功啟動，將每 5 分鐘檢查一次台積電股價。")
 # 啟動 Flask 背景執行
