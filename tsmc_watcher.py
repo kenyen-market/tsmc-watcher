@@ -23,15 +23,11 @@ drop_start_price = None
 startup_email_sent = False  # 啟動通知是否已寄出
 
 # === 發送 Email 通知 ===
-from email.utils import formataddr
-from email.header import Header
-
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg["From"] = formataddr((str(Header("TSMC Watcher", "utf-8")), GMAIL_USER))
+    msg["From"] = formataddr(("TSMC Watcher", GMAIL_USER))  # 這裡改成純 ASCII 的英文名稱
     msg["To"] = TO_EMAIL
     msg["Subject"] = Header(subject, "utf-8")
-
     msg.attach(MIMEText(body, "plain", "utf-8"))
 
     try:
