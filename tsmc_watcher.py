@@ -84,10 +84,13 @@ def run_web():
 
 # === 主程式 ===
 if __name__ == "__main__":
-    # 啟動 Flask 背景執行
-    threading.Thread(target=run_web).start()
+    # 寄送啟動通知 Email
+    send_email("【TSMC Watcher 啟動通知】", "監控系統已成功啟動，將每 5 分鐘檢查一次台積電股價。")
 
-    # 持續執行排程任務
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+    # 啟動 Flask 背景執行
+    threading.Thread(target=run_web).start()
+
+    # 持續執行排程任務
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
