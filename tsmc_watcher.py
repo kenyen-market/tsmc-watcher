@@ -26,9 +26,9 @@ drop_start_price = None
 # === 發送 Email 通知 ===
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg["From"] = GMAIL_USER
+    msg["From"] = GMAIL_USER  # 用最簡單格式避免編碼錯誤
     msg["To"] = TO_EMAIL
-    msg["Subject"] = subject
+    msg["Subject"] = subject  # 先不轉編碼
 
     msg.attach(MIMEText(body, "plain", "utf-8"))
 
