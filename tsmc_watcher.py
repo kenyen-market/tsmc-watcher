@@ -24,14 +24,16 @@ startup_email_sent = False  # 啟動通知是否已寄出
 
 # === 發送 Email 通知 ===
 from email.header import Header
+from email.utils import formataddr
 
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg["From"] = GMAIL_USER
+    msg["From"] = formataddr((str(Header("TSMC Watcher", "utf-8")), GMAIL_USER))
     msg["To"] = TO_EMAIL
-    msg["Subject"] = Header(subject, "utf-8")  # 修正主旨編碼問題
+    msg["Subject"] = Header(subject, "utf-8")  # 主旨支援中文
 
-    msg.attach(MIMEText(body, "plain", "utf-8"))  # 修正內文編碼問題
+    # 內文支援中文
+    msg.attach(MIMEText(body, "plain", "utf-8"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -40,7 +42,6 @@ def send_email(subject, body):
         print(f"已發送 Email：{subject}")
     except Exception as e:
         print(f"Email 發送失敗：{e}")
-
 # === 檢查股價 ===
 def check_tsmc_price():
     global last_below_ma, last_alert_5_percent, drop_start_price
