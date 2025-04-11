@@ -28,7 +28,7 @@ def send_email(subject, body):
     msg["To"] = TO_EMAIL
     msg["Subject"] = subject
 
-    msg.attach(MIMEText(body, "plain"))
+    msg.attach(MIMEText(body, "plain", "utf-8"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
