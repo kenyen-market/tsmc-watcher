@@ -24,7 +24,7 @@ drop_start_price = None
 # === 發送 Email 通知 ===
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg["From"] = GMAIL_USER
+    msg["From"] = formataddr((str(Header("TSMC Watcher", "utf-8")), GMAIL_USER))
     msg["To"] = TO_EMAIL
     msg["Subject"] = subject
 
