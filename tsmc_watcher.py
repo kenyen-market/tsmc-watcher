@@ -20,15 +20,15 @@ TO_EMAIL = "你要接收通知的Email"
 last_below_ma = False
 last_alert_5_percent = False
 drop_start_price = None
-startup_email_sent = False  # 啟動通知是否已寄出
 
 # === 發送 Email 通知 ===
 def send_email(subject, body):
     msg = MIMEMultipart()
-    msg["From"] = formataddr(("TSMC Watcher", GMAIL_USER))  # 這裡用 ASCII 名稱
+    msg["From"] = GMAIL_USER
     msg["To"] = TO_EMAIL
-    msg["Subject"] = Header(subject, "utf-8")
-    msg.attach(MIMEText(body, "plain", "utf-8"))
+    msg["Subject"] = subject
+
+    msg.attach(MIMEText(body, "plain"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -37,6 +37,7 @@ def send_email(subject, body):
         print(f"已發送 Email：{subject}")
     except Exception as e:
         print(f"Email 發送失敗：{e}")
+
 # === 檢查股價 ===
 def check_tsmc_price():
     global last_below_ma, last_alert_5_percent, drop_start_price
@@ -67,13 +68,6 @@ def check_tsmc_price():
     except Exception as e:
         print(f"檢查時出錯：{e}")
 
-# === 啟動時寄 Email 通知（只寄一次） ===
-def send_startup_email_once():
-    global startup_email_sent
-    if not startup_email_sent:
-        send_email("【TSMC Watcher 啟動通知】", "監控系統已成功啟動，將每 5 分鐘檢查一次台積電股價。")
-        startup_email_sent = True
-
 # === 排程每 5 分鐘執行一次 ===
 schedule.every(CHECK_INTERVAL).seconds.do(check_tsmc_price)
 
@@ -90,10 +84,6 @@ def run_web():
 
 # === 主程式 ===
 if __name__ == "__main__":
-    print("系統正在啟動...")
-
-    send_startup_email_once()  # 啟動時寄出啟動通知 Email
-
     # 啟動 Flask 背景執行
     threading.Thread(target=run_web).start()
 
