@@ -90,5 +90,5 @@ if __name__ == "__main__":
     threading.Thread(target=run_web).start()
 # 持續執行排程任務
     while True:
-        schedule.run_pending()
-        time.sleep(60)
+        schedule.run_pending()
+        time.sleep(60)
