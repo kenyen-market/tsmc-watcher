@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tsmc-watcher
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: SENDGRID_API_KEY
+        value: （你的API Key）
+      - key: FROM_EMAIL
+        value: kenyen60108@gmail.com
+      - key: TO_EMAIL
+        value: （收件人 email）
