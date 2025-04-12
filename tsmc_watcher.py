@@ -39,7 +39,14 @@ def get_price_data():
     df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
     if len(df) < 20:
         return None, None
-    current_price = df['Close'][-1]
+def get_price_data():
+    df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
+    if df is None or df.empty or "Close" not in df.columns:
+        print(">>> 取得台積電資料失敗")
+        return None, None
+    current_price = df['Close'].iloc[-1]
+    ma20 = df['Close'].rolling(window=20).mean().iloc[-1]
+    return current_price, ma20
     ma20 = df['Close'][-20:].mean()
     return current_price, ma20
 
