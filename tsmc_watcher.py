@@ -39,16 +39,16 @@ def send_email(subject, content):
 # === 取得台積電股價與 20 日均線 ===
 def get_price_data():
     try:
-        df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
+        df = yf.download(STOCK_SYMBOL, period="30d", interval="1d", progress=False)
         if df.empty or "Close" not in df.columns:
             return None
         current_price = df["Close"].iloc[-1]
-        ma20 = df["Close"].rolling(window=20).mean().iloc[-1]
+        ma20_series = df["Close"].rolling(window=20).mean()
+        ma20 = ma20_series.iloc[-1]
         return current_price, ma20
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
         return None
-
 # === 監控邏輯 ===
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, below_price
