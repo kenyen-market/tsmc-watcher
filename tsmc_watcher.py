@@ -41,13 +41,10 @@ def get_price_data():
         return None, None
 def get_price_data():
     df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
-    if df is None or df.empty or "Close" not in df.columns:
-        print(">>> 取得台積電資料失敗")
+    if df.empty or "Close" not in df.columns:
         return None, None
-    current_price = df['Close'].iloc[-1]
-    ma20 = df['Close'].rolling(window=20).mean().iloc[-1]
-    return current_price, ma20
-    ma20 = df['Close'][-20:].mean()
+    current_price = df["Close"].iloc[-1]
+    ma20 = df["Close"].rolling(window=20).mean().iloc[-1]  # 這行要 .iloc[-1]
     return current_price, ma20
 
 def watch_stock():
