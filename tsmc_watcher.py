@@ -48,9 +48,14 @@ def get_price_data():
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, below_price
     while True:
-        current_price, ma20 = get_price_data()
-        if current_price is None:
-            print(">>> 無法取得股價資料")
+        result = get_price_data()
+        if not result:
+            print(">>> 股價資料抓取失敗，略過這次檢查")
+            time.sleep(CHECK_INTERVAL)
+            continue
+
+        current_price, ma20 = result
+        # 以下繼續你的判斷邏輯...
         else:
             print(f">>> 價格: {current_price}, MA20: {ma20}")
             if current_price < ma20:
