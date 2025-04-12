@@ -40,13 +40,11 @@ def get_price_data():
     if len(df) < 20:
         return None, None
 def get_price_data():
-    df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
-    if df.empty or "Close" not in df.columns:
-        return None, None
-    current_price = df["Close"].iloc[-1]
-    ma20 = df["Close"].rolling(window=20).mean().iloc[-1]  # 這行要 .iloc[-1]
-    return current_price, ma20
-
+df = yf.download(STOCK_SYMBOL, period="30d", interval="1d")
+if df.empty or "Close" not in df.columns:
+    return None, None
+current_price = df["Close"].iloc[-1]
+ma20 = df["Close"].rolling(window=20).mean().iloc[-1]  # ← 這裡加 .iloc[-1]
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, below_price
     while True:
