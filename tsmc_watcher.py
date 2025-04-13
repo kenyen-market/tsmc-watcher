@@ -41,10 +41,18 @@ def get_price_data():
     try:
         df = yf.download(STOCK_SYMBOL, period="30d", interval="1d", progress=False)
         if df.empty or "Close" not in df.columns:
+            print(">>> 資料抓取失敗或缺少欄位")
             return None
-        current_price = df["Close"].iloc[-1]
-        ma20_series = df["Close"].rolling(window=20).mean()
+
+        current_price = float(df["Close"].iloc[-1])
+        ma20_series = df["Close"].rolling(window=20).mean().iloc[-1]
         ma20 = ma20_series.iloc[-1]
+
+        if pd.isna(ma20):
+            print(">>> MA20 資料不足")
+            return None
+
+        ma20 = float(ma20)
         return current_price, ma20
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
