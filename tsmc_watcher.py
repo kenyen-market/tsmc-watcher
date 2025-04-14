@@ -56,9 +56,16 @@ def get_price_data():
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
         return None
+# === 狀態紀錄 ===
+is_below_ma = False
+notified_below = False
+notified_5_down = False
+notified_10_down = False
+below_price = 0
+
 # === 監控邏輯 ===
 def watch_stock():
-    global is_below_ma, notified_below, notified_5_down, below_price
+    global is_below_ma, notified_below, notified_5_down, notified_10_down, below_price
     while True:
         result = get_price_data()
         if not result:
@@ -68,7 +75,6 @@ def watch_stock():
 
         current_price, ma20 = result
         print(f">>> 現價：{current_price:.2f} / MA20：{ma20:.2f}")
-        print(">>> 正在檢查股價...")
 
         if current_price < ma20:
             if not is_below_ma:
@@ -76,24 +82,31 @@ def watch_stock():
                 below_price = current_price
                 notified_below = False
                 notified_5_down = False
+                notified_10_down = False
 
             if not notified_below:
                 send_email("【TSMC 警示】跌破 20 日均線", f"目前股價 {current_price:.2f}，已跌破均線 {ma20:.2f}")
                 notified_below = True
 
             drop_pct = (below_price - current_price) / below_price * 100
+
             if drop_pct >= 5 and not notified_5_down:
                 send_email("【TSMC 警示】跌破後再跌 5%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
                 notified_5_down = True
+
+            if drop_pct >= 10 and not notified_10_down:
+                send_email("【TSMC 警示】跌破後再跌 10%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
+                notified_10_down = True
+
         else:
-            # 重置狀態
+            # 重置所有狀態
             is_below_ma = False
             notified_below = False
             notified_5_down = False
+            notified_10_down = False
             below_price = 0
 
         time.sleep(CHECK_INTERVAL)
-
 # === Flask 路由 ===
 @app.route("/")
 def home():
