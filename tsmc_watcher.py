@@ -45,7 +45,7 @@ def get_price_data():
             return None
 
         current_price = float(df["Close"].iloc[-1]).item()
-        ma20 = float(df["Close"].rolling(window=20).mean().iloc[-1]).item()
+        ma20 = df["Close"].rolling(window=20).mean().iloc[-1].item()
 
         if pd.isna(ma20):
             print(">>> MA20 資料不足")
