@@ -46,7 +46,6 @@ def get_price_data():
 
         current_price = float(df["Close"].iloc[-1])
         ma20_series = df["Close"].rolling(window=20).mean().iloc[-1]
-        ma20 = ma20_series.iloc[-1]
 
         if pd.isna(ma20):
             print(">>> MA20 資料不足")
@@ -69,6 +68,7 @@ def watch_stock():
 
         current_price, ma20 = result
         print(f">>> 現價：{current_price:.2f} / MA20：{ma20:.2f}")
+        print(">>> 正在檢查股價...")
 
         if current_price < ma20:
             if not is_below_ma:
