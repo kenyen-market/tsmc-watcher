@@ -37,7 +37,8 @@ def send_email(subject, content):
         print(f">>> Failed to send email: {e}")
 
 # === 取得台積電股價與 20 日均線 ===
-def get_price_data():
+def watch_stock():
+    print(">>> 開始執行 watch_stock()")
     try:
         df = yf.download(STOCK_SYMBOL, period="30d", interval="1d", progress=False)
         if df.empty or "Close" not in df.columns:
@@ -123,6 +124,8 @@ def home():
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
     send_email("TSMC Watcher 啟動成功", "監控系統已啟動，將每 5 分鐘檢查台積電股價。")
+    # 啟動監控背景執行緒
+    print(">>> 嘗試啟動 watch_stock 執行緒...")
 
     # 啟動監控背景執行緒
     threading.Thread(target=watch_stock, daemon=True).start()
