@@ -5,6 +5,7 @@ import os
 from flask import Flask
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -19,6 +20,7 @@ TO_EMAIL = os.environ.get("TO_EMAIL")
 is_below_ma = False
 notified_below = False
 notified_5_down = False
+notified_10_down = False
 below_price = 0
 
 # === 寄 Email ===
@@ -37,36 +39,28 @@ def send_email(subject, content):
         print(f">>> Failed to send email: {e}")
 
 # === 取得台積電股價與 20 日均線 ===
-def watch_stock():
-    print(">>> 開始執行 watch_stock()")
+def get_price_data():
     try:
         df = yf.download(STOCK_SYMBOL, period="30d", interval="1d", progress=False)
         if df.empty or "Close" not in df.columns:
             print(">>> 資料抓取失敗或缺少欄位")
             return None
 
-        current_price = (df["Close"].iloc[-1]).item()
-        ma20 = df["Close"].rolling(window=20).mean().iloc[-1].item()
-
+        current_price = df["Close"].iloc[-1].item()
+        ma20 = df["Close"].rolling(window=20).mean().iloc[-1]
         if pd.isna(ma20):
             print(">>> MA20 資料不足")
             return None
 
-        ma20 = float(ma20)
-        return current_price, ma20
+        return current_price, ma20.item()
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
         return None
-# === 狀態紀錄 ===
-is_below_ma = False
-notified_below = False
-notified_5_down = False
-notified_10_down = False
-below_price = 0
 
 # === 監控邏輯 ===
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, notified_10_down, below_price
+    print(">>> 執行 watch_stock() 執行緒中...")
     while True:
         try:
             result = get_price_data()
@@ -85,14 +79,12 @@ def watch_stock():
                     notified_below = False
                     notified_5_down = False
                     notified_10_down = False
-                    print(f">>> 首次跌破 MA20，紀錄起跌價格：{below_price:.2f}")
-
-                drop_pct = (below_price - current_price) / below_price * 100
-                print(f">>> 跌幅：{drop_pct:.2f}%")
 
                 if not notified_below:
                     send_email("【TSMC 警示】跌破 20 日均線", f"目前股價 {current_price:.2f}，已跌破均線 {ma20:.2f}")
                     notified_below = True
+
+                drop_pct = (below_price - current_price) / below_price * 100
 
                 if drop_pct >= 5 and not notified_5_down:
                     send_email("【TSMC 警示】跌破後再跌 5%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
@@ -103,8 +95,6 @@ def watch_stock():
                     notified_10_down = True
 
             else:
-                # 如果價格回到 MA20 以上，重置狀態
-                print(">>> 現價回到 MA20 以上，重置狀態")
                 is_below_ma = False
                 notified_below = False
                 notified_5_down = False
@@ -112,9 +102,10 @@ def watch_stock():
                 below_price = 0
 
         except Exception as e:
-            print(f">>> [ERROR] 在監控過程中發生錯誤：{e}")
+            print(f">>> 在監控過程中發生錯誤：{e}")
 
         time.sleep(CHECK_INTERVAL)
+
 # === Flask 路由 ===
 @app.route("/")
 def home():
@@ -124,10 +115,9 @@ def home():
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
     send_email("TSMC Watcher 啟動成功", "監控系統已啟動，將每 5 分鐘檢查台積電股價。")
-    # 啟動監控背景執行緒
-    print(">>> 嘗試啟動 watch_stock 執行緒...")
 
     # 啟動監控背景執行緒
+    print(">>> 嘗試啟動 watch_stock 執行緒...")
     threading.Thread(target=watch_stock, daemon=True).start()
 
     # 啟動 Flask Web Server
