@@ -61,29 +61,32 @@ def get_price_data():
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, notified_10_down, below_price
     print(">>> 執行 watch_stock() 執行緒中...")
-    while True:
+        while True:
         try:
             local_time = time.localtime()
             weekday = local_time.tm_wday  # 0=Monday, 6=Sunday
             hour = local_time.tm_hour
-            minute = local_time.tm_min  # 檢查是否為平日（週一到週五）且時間在 9:00 到 13:30
-                    if 0 <= weekday <= 4 and (
-            hour == 9 or
-            10 <= hour <= 12 or
-            (hour == 13 and minute <= 30)
-        ):
-            result = get_price_data()
-            if not result:
-                print(">>> 股價資料抓取失敗，略過")
+            minute = local_time.tm_min
+
+            if 0 <= weekday <= 4 and (
+                hour == 9 or
+                10 <= hour <= 12 or
+                (hour == 13 and minute <= 30)
+            ):
+                result = get_price_data()
+                if not result:
+                    print(">>> 股價資料抓取失敗，略過")
+                    time.sleep(CHECK_INTERVAL)
+                    continue
+            else:
+                print(">>> 非開盤時間，略過檢查")
                 time.sleep(CHECK_INTERVAL)
                 continue
-        else:
-            print(">>> 非開盤時間，略過檢查")
-            time.sleep(CHECK_INTERVAL)
-            continue
+
             current_price, ma20 = result
             print(f">>> 現價：{current_price:.2f} / MA20：{ma20:.2f}")
 
+            # 後續邏輯繼續寫在這裡...
             if current_price < ma20:
                 if not is_below_ma:
                     is_below_ma = True
