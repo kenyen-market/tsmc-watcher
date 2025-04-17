@@ -61,7 +61,8 @@ def get_price_data():
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, notified_10_down, below_price
     print(">>> 執行 watch_stock() 執行緒中...")
-        while True:
+
+    while True:
         try:
             local_time = time.localtime()
             weekday = local_time.tm_wday  # 0=Monday, 6=Sunday
@@ -85,6 +86,8 @@ def watch_stock():
 
             current_price, ma20 = result
             print(f">>> 現價：{current_price:.2f} / MA20：{ma20:.2f}")
+
+            # 這裡接下來的判斷通知邏輯...
 
             # 後續邏輯繼續寫在這裡...
             if current_price < ma20:
