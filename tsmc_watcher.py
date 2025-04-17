@@ -66,22 +66,21 @@ def watch_stock():
             local_time = time.localtime()
             weekday = local_time.tm_wday  # 0=Monday, 6=Sunday
             hour = local_time.tm_hour
-            minute = local_time.tm_min# 檢查是否為平日（週一到週五）且時間在 9:00 到 13:30
-            if 0 <= weekday <= 4 and (
-    hour == 9 or
-    10 <= hour <= 12 or
-    (hour == 13 and minute <= 30)
-):
-    result = get_price_data()
-    if not result:
-        print(">>> 股價資料抓取失敗，略過")
-        time.sleep(CHECK_INTERVAL)
-        continue
-else:
-    print(">>> 非開盤時間，略過檢查")
-    time.sleep(CHECK_INTERVAL)
-    continue
-
+            minute = local_time.tm_min  # 檢查是否為平日（週一到週五）且時間在 9:00 到 13:30
+                    if 0 <= weekday <= 4 and (
+            hour == 9 or
+            10 <= hour <= 12 or
+            (hour == 13 and minute <= 30)
+        ):
+            result = get_price_data()
+            if not result:
+                print(">>> 股價資料抓取失敗，略過")
+                time.sleep(CHECK_INTERVAL)
+                continue
+        else:
+            print(">>> 非開盤時間，略過檢查")
+            time.sleep(CHECK_INTERVAL)
+            continue
             current_price, ma20 = result
             print(f">>> 現價：{current_price:.2f} / MA20：{ma20:.2f}")
 
