@@ -44,6 +44,10 @@ def send_email(subject, content):
 def get_price_data():
     try:
         df = yf.download(STOCK_SYMBOL, period="30d", interval="1d", progress=False)
+        df_today = yf.download(STOCK_SYMBOL, period="1d", interval="1m", progress=False)
+        if df_today.empty:
+            print(">>> 今天無分鐘級股價資料，可能為休市日")
+            return None
         if df.empty or "Close" not in df.columns:
             print(">>> 資料抓取失敗或缺少欄位")
             return None
@@ -75,10 +79,18 @@ def watch_stock():
             print(">>> 當前時間（台灣時區）：", local_time.strftime("%Y-%m-%d %H:%M:%S"))
 
             # 判斷是否為台股開盤時間（週一到週五，9:00～13:30）
-            is_market_open = (
+            is_trading_time = (
                 0 <= weekday <= 4 and
-                ((9 <= hour <= 12) or (hour == 13 and minute <= 30))
+                (
+                    (hour == 9 and minute >= 0) or
+                    (10 <= hour < 13) or
+                    (hour == 13 and minute <= 30)
+                )
             )
+            if not is_trading_time:
+                print(">>> 非台股開盤時間，略過檢查"
+                      time.sleep(CHECK_INTERVAL)
+                      continue
 
             if not is_market_open:
                 print(">>> 非開盤時間，略過檢查")
