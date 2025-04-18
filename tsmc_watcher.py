@@ -6,6 +6,8 @@ from flask import Flask
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import pandas as pd
+from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -64,10 +66,20 @@ def watch_stock():
 
     while True:
         try:
-            local_time = time.localtime()
-            weekday = local_time.tm_wday  # 0=Monday, 6=Sunday
-            hour = local_time.tm_hour
-            minute = local_time.tm_min
+            tz = pytz.timezone("Asia/Taipei")
+            local_time = datetime.now(tz)
+            weekday = local_time.weekday()   # 0=Monday, 6=Sunday
+            hour = local_time.hour
+            minute = local_time.minute
+            print(">>> 當前時間（台灣時區）：", local_time.strftime("%Y-%m-%d %H:%M:%S"))
+            if 0 <= weekday <= 4 and (
+                (9 <= hour <= 12) or (hour == 13 and minute <= 30)
+            ):
+                pass  # 可進入監控
+            else:
+                print(">>> 非開盤時間，略過檢查")
+                time.sleep(CHECK_INTERVAL)
+                continue
 
             if 0 <= weekday <= 4 and (9 <= hour <= 12 or (hour == 13 and minute <= 30)):
                 print(">>> 台股開盤時間內，開始檢查股價")
