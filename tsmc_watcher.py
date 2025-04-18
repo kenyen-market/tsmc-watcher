@@ -54,7 +54,7 @@ def get_price_data():
             print(">>> MA20 資料不足")
             return None
 
-        return current_price, ma20.item()
+        return float(current_price), float(ma20)
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
         return None
