@@ -76,8 +76,8 @@ def watch_stock():
                     print(">>> 股價資料取得失敗；略過")
                     time.sleep(CHECK_INTERVAL)
                     continue
-    current_price, ma20 = result
-    print(f">>> 現在股價：{current_price:.2f}，MA20：{ma20:.2f}")
+                    current_price, ma20 = result
+                    print(f">>> 現在股價：{current_price:.2f}，MA20：{ma20:.2f}")
             else:
                 print(">>> 非開盤時間，略過檢查")
                 time.sleep(CHECK_INTERVAL)
