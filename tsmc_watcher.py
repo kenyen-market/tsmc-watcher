@@ -69,16 +69,15 @@ def watch_stock():
             hour = local_time.tm_hour
             minute = local_time.tm_min
 
-            if 0 <= weekday <= 4 and (
-                hour == 9 or
-                10 <= hour <= 12 or
-                (hour == 13 and minute <= 30)
-            ):
+            if 0 <= weekday <= 4 and (9 <= hour <= 12 or (hour == 13 and minute <= 30)):
+                print(">>> 台股開盤時間內，開始檢查股價")
                 result = get_price_data()
                 if not result:
-                    print(">>> 股價資料抓取失敗，略過")
+                    print(">>> 股價資料取得失敗；略過")
                     time.sleep(CHECK_INTERVAL)
                     continue
+    current_price, ma20 = result
+    print(f">>> 現在股價：{current_price:.2f}，MA20：{ma20:.2f}")
             else:
                 print(">>> 非開盤時間，略過檢查")
                 time.sleep(CHECK_INTERVAL)
