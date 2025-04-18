@@ -88,7 +88,7 @@ def watch_stock():
                 )
             )
             if not is_trading_time:
-                print(">>> 非台股開盤時間，略過檢查"）
+                print(">>> 非台股開盤時間，略過檢查")
                       time.sleep(CHECK_INTERVAL)
                       continue
 
