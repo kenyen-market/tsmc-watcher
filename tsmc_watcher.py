@@ -66,38 +66,45 @@ def watch_stock():
 
     while True:
         try:
+            def watch_stock():
+    print(">>> 執行 watch_stock() 執行緒中...")
+            # 使用台灣時區
             tz = pytz.timezone("Asia/Taipei")
             local_time = datetime.now(tz)
-            weekday = local_time.weekday()   # 0=Monday, 6=Sunday
+            weekday = local_time.weekday()  # 0 = Monday
             hour = local_time.hour
             minute = local_time.minute
+
             print(">>> 當前時間（台灣時區）：", local_time.strftime("%Y-%m-%d %H:%M:%S"))
-            if 0 <= weekday <= 4 and (
-                (9 <= hour <= 12) or (hour == 13 and minute <= 30)
-            ):
-                pass  # 可進入監控
-            else:
+
+            # 判斷是否為台股開盤時間（週一到週五，9:00～13:30）
+            is_market_open = (
+                0 <= weekday <= 4 and
+                ((9 <= hour <= 12) or (hour == 13 and minute <= 30))
+            )
+
+            if not is_market_open:
                 print(">>> 非開盤時間，略過檢查")
                 time.sleep(CHECK_INTERVAL)
                 continue
 
-            if 0 <= weekday <= 4 and (9 <= hour <= 12 or (hour == 13 and minute <= 30)):
-                print(">>> 台股開盤時間內，開始檢查股價")
-                result = get_price_data()
-                if not result:
-                    print(">>> 股價資料取得失敗；略過")
-                    time.sleep(CHECK_INTERVAL)
-                    continue
-                    current_price, ma20 = result
-                    print(f">>> 現在股價：{current_price:.2f}，MA20：{ma20:.2f}")
-            else:
-                print(">>> 非開盤時間，略過檢查")
+            print(">>> 已在開盤時間，開始檢查股價")
+
+            result = get_price_data()
+            if not result:
+                print(">>> 股價資料取得失敗；略過")
                 time.sleep(CHECK_INTERVAL)
                 continue
 
             current_price, ma20 = result
-            print(f">>> 現價：{current_price:.2f} / MA20：{ma20:.2f}")
+            print(f">>> 現在價格: {current_price:.2f}，MA20: {ma20:.2f}")
 
+            # 接下來進行均線與跌幅判斷...
+            # （你原本的價格邏輯可以直接接在這裡）
+            
+        except Exception as e:
+            print(">>> 執行錯誤：", str(e))
+            time.sleep(CHECK_INTERVAL)
             # 這裡接下來的判斷通知邏輯...
 
             # 後續邏輯繼續寫在這裡...
