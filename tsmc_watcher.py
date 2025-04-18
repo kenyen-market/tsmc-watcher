@@ -66,9 +66,6 @@ def watch_stock():
 
     while True:
         try:
-            def watch_stock():
-    print(">>> 執行 watch_stock() 執行緒中...")
-            # 使用台灣時區
             tz = pytz.timezone("Asia/Taipei")
             local_time = datetime.now(tz)
             weekday = local_time.weekday()  # 0 = Monday
@@ -99,7 +96,11 @@ def watch_stock():
             current_price, ma20 = result
             print(f">>> 現在價格: {current_price:.2f}，MA20: {ma20:.2f}")
 
-            # 接下來進行均線與跌幅判斷...
+            # 接下來進行均線與跌幅判斷..
+            
+        except Exception as e:
+            print(">>> 執行錯誤：", str(e))
+            time.sleep(CHECK_INTERVAL)
             # （你原本的價格邏輯可以直接接在這裡）
             
         except Exception as e:
