@@ -1,13 +1,13 @@
 services:
-  - type: web
+  - type: cron
     name: tsmc-watcher
+    schedule: "*/5 * * * *"  # 每 5 分鐘執行一次
+    command: "python tsmc_watcher.py"
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
     envVars:
       - key: SENDGRID_API_KEY
-        value: （你的API Key）
+        value: (你的API Key)
       - key: FROM_EMAIL
-        value: kenyen60108@gmail.com
+        value: kenyen601080@gmail.com
       - key: TO_EMAIL
-        value: （收件人 email）
+        value: (收件人 email)
