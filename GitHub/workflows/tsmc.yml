@@ -1,0 +1,31 @@
+name: TSMC Watcher Cron
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # 每 5 分鐘執行
+  workflow_dispatch:  # 可手動觸發
+
+jobs:
+  run-tsmc-watcher:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run TSMC Watcher
+        run: python tsmc_watcher.py
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
