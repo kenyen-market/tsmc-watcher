@@ -1,6 +1,5 @@
 yfinance
 schedule
 pandas
-flask
 sendgrid
 pytz
