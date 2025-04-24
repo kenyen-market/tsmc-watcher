@@ -88,11 +88,6 @@ def watch_stock():
                 time.sleep(CHECK_INTERVAL)
                 continue
 
-            if not is_market_open:
-                print(">>> 非開盤時間，略過檢查")
-                time.sleep(CHECK_INTERVAL)
-                continue
-
             print(">>> 已在開盤時間，開始檢查股價")
 
             result = get_price_data()
@@ -109,14 +104,7 @@ def watch_stock():
         except Exception as e:
             print(">>> 執行錯誤：", str(e))
             time.sleep(CHECK_INTERVAL)
-            # （你原本的價格邏輯可以直接接在這裡）
             
-        except Exception as e:
-            print(">>> 執行錯誤：", str(e))
-            time.sleep(CHECK_INTERVAL)
-            # 這裡接下來的判斷通知邏輯...
-
-            # 後續邏輯繼續寫在這裡...
             if current_price < ma20:
                 if not is_below_ma:
                     is_below_ma = True
@@ -146,18 +134,10 @@ def watch_stock():
                 notified_10_down = False
                 below_price = 0
 
-        except Exception as e:
-            print(f">>> 在監控過程中發生錯誤：{e}")
-
         time.sleep(CHECK_INTERVAL)
 
 # === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
     send_email("TSMC Watcher 啟動成功", "監控系統已啟動，將每 5 分鐘檢查台積電股價。")
-
-    # 啟動監控背景執行緒
-    print(">>> 嘗試啟動 watch_stock 執行緒...")
-    threading.Thread(target=watch_stock, daemon=True).start()
-    if __name__ == "__main__":
-        watch_stock()
+    watch_stock()
