@@ -7,9 +7,6 @@ from sendgrid.helpers.mail import Mail
 import pandas as pd
 from datetime import datetime
 import pytz
-
-app = Flask(__name__)
-
 # === 設定區 ===
 STOCK_SYMBOL = "2330.TW"
 CHECK_INTERVAL = 300  # 每 5 分鐘
