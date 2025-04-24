@@ -2,7 +2,6 @@ import yfinance as yf
 import time
 import threading
 import os
-from flask import Flask
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import pandas as pd
@@ -168,9 +167,5 @@ if __name__ == "__main__":
     # 啟動監控背景執行緒
     print(">>> 嘗試啟動 watch_stock 執行緒...")
     threading.Thread(target=watch_stock, daemon=True).start()
-
-    # 啟動 Flask Web Server
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
     if __name__ == "__main__":
         watch_stock()
