@@ -130,5 +130,4 @@ def watch_stock():
 # === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
-    send_email("TSMC Watcher 啟動成功", "監控系統已啟動，將檢查台積電股價一次")
     watch_stock()
