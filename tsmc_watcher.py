@@ -62,82 +62,73 @@ def get_price_data():
 # === 監控邏輯 ===
 def watch_stock():
     global is_below_ma, notified_below, notified_5_down, notified_10_down, below_price
-    print(">>> 執行 watch_stock() 執行緒中...")
 
-    while True:
-        try:
-            tz = pytz.timezone("Asia/Taipei")
-            local_time = datetime.now(tz)
-            weekday = local_time.weekday()  # 0 = Monday
-            hour = local_time.hour
-            minute = local_time.minute
+    try:
+        tz = pytz.timezone("Asia/Taipei")
+        local_time = datetime.now(tz)
+        weekday = local_time.weekday()
+        hour = local_time.hour
+        minute = local_time.minute
 
-            print(">>> 當前時間（台灣時區）：", local_time.strftime("%Y-%m-%d %H:%M:%S"))
+        print(">>> 當前時間（台灣時區）：", local_time.strftime("%Y-%m-%d %H:%M:%S"))
 
-            # 判斷是否為台股開盤時間（週一到週五，9:00～13:30）
-            is_trading_time = (
-                0 <= weekday <= 4 and
-                (
-                    (hour == 9 and minute >= 0) or
-                    (10 <= hour < 13) or
-                    (hour == 13 and minute <= 30)
-                )
+        is_trading_time = (
+            0 <= weekday <= 4 and
+            (
+                (hour == 9 and minute >= 0) or
+                (10 <= hour < 13) or
+                (hour == 13 and minute <= 30)
             )
-            if not is_trading_time:
-                print(">>> 非台股開盤時間，略過檢查")
-                time.sleep(CHECK_INTERVAL)
-                continue
+        )
+        if not is_trading_time:
+            print(">>> 非台股開盤時間，略過檢查")
+            return
 
-            print(">>> 已在開盤時間，開始檢查股價")
+        print(">>> 已在開盤時間，開始檢查股價")
 
-            result = get_price_data()
-            if not result:
-                print(">>> 股價資料取得失敗；略過")
-                time.sleep(CHECK_INTERVAL)
-                continue
+        result = get_price_data()
+        if not result:
+            print(">>> 股價資料取得失敗；略過")
+            return
 
-            current_price, ma20 = result
-            print(f">>> 現在價格: {current_price:.2f}，MA20: {ma20:.2f}")
+        current_price, ma20 = result
+        print(f">>> 現在價格: {current_price:.2f}，MA20: {ma20:.2f}")
 
-            # 接下來進行均線與跌幅判斷..
-            
-        except Exception as e:
-            print(">>> 執行錯誤：", str(e))
-            time.sleep(CHECK_INTERVAL)
-            
-            if current_price < ma20:
-                if not is_below_ma:
-                    is_below_ma = True
-                    below_price = current_price
-                    notified_below = False
-                    notified_5_down = False
-                    notified_10_down = False
-
-                if not notified_below:
-                    send_email("【TSMC 警示】跌破 20 日均線", f"目前股價 {current_price:.2f}，已跌破均線 {ma20:.2f}")
-                    notified_below = True
-
-                drop_pct = (below_price - current_price) / below_price * 100
-
-                if drop_pct >= 5 and not notified_5_down:
-                    send_email("【TSMC 警示】跌破後再跌 5%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
-                    notified_5_down = True
-
-                if drop_pct >= 10 and not notified_10_down:
-                    send_email("【TSMC 警示】跌破後再跌 10%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
-                    notified_10_down = True
-
-            else:
-                is_below_ma = False
+        if current_price < ma20:
+            if not is_below_ma:
+                is_below_ma = True
+                below_price = current_price
                 notified_below = False
                 notified_5_down = False
                 notified_10_down = False
-                below_price = 0
+
+            if not notified_below:
+                send_email("【TSMC 警示】跌破 20 日均線", f"目前股價 {current_price:.2f}，已跌破均線 {ma20:.2f}")
+                notified_below = True
+
+            drop_pct = (below_price - current_price) / below_price * 100
+
+            if drop_pct >= 5 and not notified_5_down:
+                send_email("【TSMC 警示】跌破後再跌 5%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
+                notified_5_down = True
+
+            if drop_pct >= 10 and not notified_10_down:
+                send_email("【TSMC 警示】跌破後再跌 10%", f"股價已跌至 {current_price:.2f}，下跌 {drop_pct:.2f}%")
+                notified_10_down = True
+        else:
+            is_below_ma = False
+            notified_below = False
+            notified_5_down = False
+            notified_10_down = False
+            below_price = 0
+
+    except Exception as e:
+        print(f">>> 發生錯誤：{e}")
 
         time.sleep(CHECK_INTERVAL)
 
 # === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
-    send_email("TSMC Watcher 啟動成功", "監控系統已啟動，將每 5 分鐘檢查台積電股價。")
+    send_email("TSMC Watcher 啟動成功", "監控系統已啟動，將檢查台積電股價一次")
     watch_stock()
