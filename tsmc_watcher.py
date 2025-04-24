@@ -151,11 +151,6 @@ def watch_stock():
 
         time.sleep(CHECK_INTERVAL)
 
-# === Flask 路由 ===
-@app.route("/")
-def home():
-    return "TSMC Watcher is running."
-
 # === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
