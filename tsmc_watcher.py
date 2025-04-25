@@ -44,7 +44,7 @@ def get_price_data():
         if df_today.empty:
             print(">>> 今天無分鐘級股價資料，可能為休市日")
             return None
-        if df.empty or "Close" not in df.columns:
+        if df.empty or ("Close" not in df.columns):
             print(">>> 資料抓取失敗或缺少欄位")
             return None
 
