@@ -96,7 +96,7 @@ def watch_stock():
         print(">>> 已在開盤時間，開始檢查股價")
 
         result = get_price_data()
-        if not result:
+        if result is None:
             print(">>> 股價資料取得失敗；略過")
             return
 
