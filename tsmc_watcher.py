@@ -48,11 +48,11 @@ def get_price_data():
             print(">>> 資料抓取失敗或缺少欄位")
             return None
             current_price = df["Close"].iloc[-1].item()
-            ma20 = df["Close"].rolling(window=20).mean().iloc[-1].item()
-        if pd.isna(ma20):
+          ma20_series = df["Close"].rolling(window=20).mean()
+        if ma20_series.isna().all():
             print(">>> MA20 資料不足")
             return None
-
+        ma20 = ma20_series.iloc[-1].item()  
         return float(current_price), float(ma20)
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
