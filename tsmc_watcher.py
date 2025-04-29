@@ -1,5 +1,3 @@
-!pip install sendgrid
-
 
 import yfinance as yf
 import time
