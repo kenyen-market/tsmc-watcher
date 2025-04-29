@@ -1,3 +1,6 @@
+!pip install sendgrid
+
+
 import yfinance as yf
 import time
 import threading
@@ -48,22 +51,15 @@ def get_price_data():
             print(">>> 資料抓取失敗或缺少欄位")
             return None
 
-        current_price = df["Close"].iloc[-1]
-        if pd.isna(current_price):
-            print(">>> 當前價格為 NaN")
-            return None
-        current_price = float(current_price)
-
-        # 計算 MA20
-        ma20_series = df["Close"].rolling(window=20).mean()
-        ma20_value = ma20_series.iloc[-1]
-        if pd.isna(ma20_value):
+        # Corrected indentation for the following two lines:
+        current_price = df["Close"].iloc[-1].item()
+        ma20 = df["Close"].rolling(window=20).mean().iloc[-1].item()
+        
+        if pd.isna(ma20):
             print(">>> MA20 資料不足")
             return None
-        ma20 = float(ma20_value)
 
-        return current_price, ma20
-
+        return float(current_price), float(ma20)
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
         return None
@@ -98,7 +94,7 @@ def watch_stock():
         result = get_price_data()
         if result is None:
             print(">>> 股價資料取得失敗；略過")
-            return
+            return # Added return statement to handle the case when result is None
 
         current_price, ma20 = result
         print(f">>> 現在價格: {current_price:.2f}，MA20: {ma20:.2f}")
