@@ -47,13 +47,23 @@ def get_price_data():
         if df.empty or ("Close" not in df.columns):
             print(">>> 資料抓取失敗或缺少欄位")
             return None
-            current_price = df["Close"].iloc[-1].item()
-            ma20_series = df["Close"].rolling(window=20).mean()
-        if ma20_series.isna().all():
+
+        current_price = df["Close"].iloc[-1]
+        if pd.isna(current_price):
+            print(">>> 當前價格為 NaN")
+            return None
+        current_price = float(current_price)
+
+        # 計算 MA20
+        ma20_series = df["Close"].rolling(window=20).mean()
+        ma20_value = ma20_series.iloc[-1]
+        if pd.isna(ma20_value):
             print(">>> MA20 資料不足")
             return None
-        ma20 = ma20_series.iloc[-1].item()  
-        return float(current_price), float(ma20)
+        ma20 = float(ma20_value)
+
+        return current_price, ma20
+
     except Exception as e:
         print(f">>> 取得資料錯誤：{e}")
         return None
