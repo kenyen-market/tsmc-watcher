@@ -33,7 +33,7 @@ jobs:
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
 
       - name: Run KD+MACD Watcher
-        run: python watch_KD_MACD.py
+        run: python tsmc_KD_MACD.py
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
