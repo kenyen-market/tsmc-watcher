@@ -1,13 +1,14 @@
-name: TSMC Watcher
+name: Run TSMC Watchers
 
 on:
   schedule:
-    - cron: "*/5 * * * *"  # 每 5 分鐘執行一次
-  workflow_dispatch:       # 可手動執行
+    - cron: '*/5 * * * *'  # 每 5 分鐘執行一次
+  workflow_dispatch:
 
 jobs:
-  run-tsmc-watcher:
+  run-watchers:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -15,16 +16,25 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: pip install yfinance ta sendgrid pytz
+          python-version: '3.10'
 
+      - name: Install dependencies
+        run: |
+          pip install yfinance ta sendgrid pytz pandas
+          
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run script
+      - name: Run MA20 Watcher
+        run: python watch_ma20.py
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
-        run: python tsmc_watcher.py
+
+      - name: Run KD+MACD Watcher
+        run: python watch_KD_MACD.py
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
