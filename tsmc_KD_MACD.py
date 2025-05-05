@@ -52,7 +52,7 @@ def get_ta_data():
         d = stoch.stoch_signal().iloc[-1]
 
         # MACD
-        macd = MACD(close)
+        macd = MACD(close=close)
         macd_val = macd.macd().iloc[-1]
 
         return current_price, k, d, macd_val
