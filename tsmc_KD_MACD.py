@@ -42,8 +42,7 @@ def get_ta_data():
 
         df.dropna(inplace=True)
         if isinstance(df.columns, pd.MultiIndex):
-            df.columns = 
-            df.columns.get_level_values(0)
+            df.columns = df.columns.get_level_values(0)
         close = df["Close"]
 
         # 當前價格
