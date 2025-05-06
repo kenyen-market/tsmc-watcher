@@ -41,6 +41,8 @@ def get_ta_data():
             return None
 
         df.dropna(inplace=True)
+        df.columns = 
+        df.columns.get_level_values(0)  # 只取第一層欄位名稱
         close = df["Close"]
 
         # 當前價格
