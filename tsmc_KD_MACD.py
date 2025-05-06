@@ -41,7 +41,7 @@ def get_ta_data():
             return None
 
         df.dropna(inplace=True)
-        close = df["Close"]
+        close = df["Close"].squeeze()
 
         # 當前價格
         current_price = close.iloc[-1]
