@@ -78,7 +78,7 @@ def watch_stock():
         print(">>> 指標資料抓取失敗")
         return
 
-    current_price, k, d, macd_val = data
+    current_price, k, d, macd_diff = data
     print(f">>> 股價: {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
 if k < 20 and macd_diff < 0:
     if not notified_kd_macd:
