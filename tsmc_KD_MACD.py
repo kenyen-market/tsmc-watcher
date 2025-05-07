@@ -56,7 +56,7 @@ def get_ta_data():
         # MACD
         macd = MACD(close=close)
         macd_diff = macd.macd().iloc[-1] - macd.macd_signal().iloc[-1]
-        return current_price, k, d, macd_val
+        return current_price, k, d, macd_diff
     except Exception as e:
         print(f">>> 計算指標錯誤：{e}")
         return None
