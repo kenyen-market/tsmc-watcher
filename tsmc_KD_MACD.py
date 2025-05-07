@@ -79,15 +79,14 @@ def watch_stock():
         return
 
     current_price, k, d, macd_val = data
-    print(f">>> 股價: {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD: {macd_val:.4f}")
-
-    if k < 20 and macd_val < 0:
-        if not notified_kd_macd:
-            send_email(
-                "【TSMC 警示】KD<20 且 MACD<0",
-                f"目前股價: {current_price:.2f}\nK: {k:.2f}, D: {d:.2f}, MACD: {macd_val:.4f}"
-            )
-            notified_kd_macd = True
+    print(f">>> 股價: {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
+if k < 20 and macd_diff < 0:
+    if not notified_kd_macd:
+        send_email(
+            "【TSMC 警示】KD<20 且 MACD差值<0",
+            f"目前股價: {current_price:.2f}\nK: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}"
+        )
+        notified_kd_macd = True
     else:
         notified_kd_macd = False
 
