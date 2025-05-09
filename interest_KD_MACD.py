@@ -98,4 +98,4 @@ def watch_all_stock():
 # === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
-    watch_all_stock()
+    watch_stock()
