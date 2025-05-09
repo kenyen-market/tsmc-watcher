@@ -9,15 +9,19 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 # === 設定 ===
-STOCK_SYMBOL = "2330.TW"
+STOCKS = {
+    "2330.TW": "台積電",
+    "2891.TW": "中信金",
+    "00878.TW": "國泰永續高股息"
+}
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 FROM_EMAIL = os.environ.get("FROM_EMAIL")
 TO_EMAIL = os.environ.get("TO_EMAIL")
 
-# === 狀態追蹤 ===
-notified_kd_macd = False
+# === 狀態追蹤（每支股票獨立）===
+notified = {symbol: False for symbol in STOCKS}
 
-# === 發送 Email ===
+# === 寄 Email ===
 def send_email(subject, content):
     try:
         message = Mail(
@@ -33,11 +37,11 @@ def send_email(subject, content):
         print(f">>> Email failed: {e}")
 
 # === 技術指標取得 ===
-def get_ta_data():
+def get_ta_data(symbol):
     try:
-        df = yf.download(STOCK_SYMBOL, period="60d", interval="1d", progress=False)
+        df = yf.download(symbol, period="60d", interval="1d", progress=False)
         if df.empty or "Close" not in df.columns:
-            print(">>> 抓取資料失敗")
+            print(f">>> 抓取 {symbol} 資料失敗")
             return None
 
         df.dropna(inplace=True)
@@ -45,25 +49,23 @@ def get_ta_data():
             df.columns = df.columns.get_level_values(0)
         close = df["Close"]
 
-        # 當前價格
         current_price = close.iloc[-1]
 
-        # KD
         stoch = StochasticOscillator(high=df["High"], low=df["Low"], close=close, window=14, smooth_window=3)
         k = stoch.stoch().iloc[-1]
         d = stoch.stoch_signal().iloc[-1]
 
-        # MACD
         macd = MACD(close=close)
         macd_diff = macd.macd().iloc[-1] - macd.macd_signal().iloc[-1]
+
         return current_price, k, d, macd_diff
     except Exception as e:
-        print(f">>> 計算指標錯誤：{e}")
+        print(f">>> 計算 {symbol} 指標錯誤：{e}")
         return None
 
 # === 監控邏輯 ===
 def watch_stock():
-    global notified_kd_macd
+    global notified
 
     tz = pytz.timezone("Asia/Taipei")
     now = datetime.now(tz)
@@ -72,25 +74,28 @@ def watch_stock():
     if now.weekday() >= 5 or not (9 <= now.hour < 14):
         print(">>> 非開盤時間，略過")
         return
+def watch_all_stock():
+    for symbol, name in STOCKS.items():
+        print(f">>> 正在檢查：{name}（{symbol}）")
+        data = get_ta_data(symbol)
+        if data is None:
+            print(f">>> 無法取得 {name} 資料")
+            continue
 
-    data = get_ta_data()
-    if data is None:
-        print(">>> 指標資料抓取失敗")
-        return
+        current_price, k, d, macd_diff = data
+        print(f">>> {name} | 股價: {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
 
-    current_price, k, d, macd_diff = data
-    print(f">>> 股價: {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
-    if k < 20 and macd_diff < 0:
-        if not notified_kd_macd:
-            send_email(
-                "【TSMC 警示】KD<20 且 MACD差值<0",
-                f"目前股價: {current_price:.2f}\nK: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}"
-            )
-            notified_kd_macd = True
-    else:
-        notified_kd_macd = False
+        if k < 20 and macd_diff < 0:
+            if not notified[symbol]:
+                send_email(
+                    f"【{name} 警示】KD<20 且 MACD差值<0",
+                    f"{name}（{symbol}）\n股價: {current_price:.2f}\nK: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}"
+                )
+                notified[symbol] = True
+        else:
+            notified[symbol] = False
 
-# === 執行一次監控 ===
+# === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
-    watch_stock()
+    watch_all_stock()
