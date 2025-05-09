@@ -1,4 +1,4 @@
-name: Run TSMC Watchers
+name: Run Stocks of interest
 
 on:
   schedule:
@@ -26,14 +26,14 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run MA20 Watcher
-        run: python tsmc_watcher_ma20.py
+        run: python interest_watcher_ma20.py
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
 
       - name: Run KD+MACD Watcher
-        run: python tsmc_KD_MACD.py
+        run: python interest_KD_MACD.py
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
