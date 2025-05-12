@@ -71,10 +71,9 @@ def watch_stock():
     now = datetime.now(tz)
 if now.weekday() >= 5 or not (9 <= now.hour < 14):
 print(">>> 非開盤時間，略過")
+return 
 print(">>> 台灣時間：",now.strftime("%Y-%m-%d %H:%M:%S"))
 
-    
-        return
 def watch_all_stock():
     for symbol, name in STOCKS.items():
         print(f">>> 正在檢查：{name}（{symbol}）")
