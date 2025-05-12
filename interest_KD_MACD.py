@@ -69,10 +69,12 @@ def watch_stock():
 
     tz = pytz.timezone("Asia/Taipei")
     now = datetime.now(tz)
-if now.weekday() >= 5 or not (9 <= now.hour < 14):
-print(">>> 非開盤時間，略過")
-return 
-print(">>> 台灣時間：",now.strftime("%Y-%m-%d %H:%M:%S"))
+    if now.weekday() >= 5 or not (9 <= now.hour < 14):
+        print(f">>> 非開盤時間（{now.strftime('%Y-%m-%d %H:%M:%S')}），略過")
+        return
+    print(f">>> 開始檢查股票（{now.strftime('%Y-%m-%d %H:%M:%S')}）")
+    for symbol, name in STOCKS.items():
+        watch_all_stock_()
 
 def watch_all_stock():
     for symbol, name in STOCKS.items():
