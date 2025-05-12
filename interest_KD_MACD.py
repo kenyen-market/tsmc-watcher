@@ -74,7 +74,7 @@ def watch_stock():
         return
     print(f">>> 開始檢查股票（{now.strftime('%Y-%m-%d %H:%M:%S')}）")
     for symbol, name in STOCKS.items():
-        watch_all_stock_()
+        
 
 def watch_all_stock():
     for symbol, name in STOCKS.items():
