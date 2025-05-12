@@ -70,7 +70,6 @@ def watch_stock():
     tz = pytz.timezone("Asia/Taipei")
     now = datetime.now(tz)
     print(">>> 台灣時間：", now.strftime("%Y-%m-%d %H:%M:%S"))
-watch_all_stock()
 
     if now.weekday() >= 5 or not (9 <= now.hour < 14):
         print(">>> 非開盤時間，略過")
