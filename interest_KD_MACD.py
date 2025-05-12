@@ -73,7 +73,6 @@ def watch_stock():
         print(f">>> 非開盤時間（{now.strftime('%Y-%m-%d %H:%M:%S')}），略過")
         return
     print(f">>> 開始檢查股票（{now.strftime('%Y-%m-%d %H:%M:%S')}）")
-    for symbol, name in STOCKS.items():
     watch_all_stock()
         
 
