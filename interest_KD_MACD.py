@@ -85,7 +85,7 @@ def watch_all_stock():
             continue
 
         current_price, k, d, macd_diff = data
-        print(f">>> {name} | 股價: {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
+        print(f">>> {name}：股價 {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
 
         if k < 30 and macd_diff < 0:
             if not notified[symbol]:
