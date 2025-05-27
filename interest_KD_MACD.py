@@ -51,7 +51,7 @@ def get_ta_data(symbol):
 
         current_price = close.iloc[-1]
 
-        stoch = StochasticOscillator(high=df["High"], low=df["Low"], close=close, window=9, smooth_window=3)
+        stoch = StochasticOscillator(high=df["High"], low=df["Low"], close=close, window=9, smooth_window=9)
         k = stoch.stoch().iloc[-1]
         d = stoch.stoch_signal().iloc[-1]
 
