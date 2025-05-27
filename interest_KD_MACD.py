@@ -47,7 +47,7 @@ def get_ta_data(symbol):
         df.dropna(inplace=True)
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
-        close = df["Close"]
+        close = df["Adj Close"] if "Adj Close" in df.columns else df["Close"]
 
         current_price = close.iloc[-1]
 
