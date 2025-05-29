@@ -35,6 +35,28 @@ def send_email(subject, content):
         print(f">>> Email sent: {subject}")
     except Exception as e:
         print(f">>> Email failed: {e}")
+def calculate_kd(df, n=9):
+    df = df.copy()
+    df['lowest_low'] = df['Low'].rolling(window=n).min()
+    df['highest_high'] = df['High'].rolling(window=n).max()
+    df['RSV'] = (df['Close'] - df['lowest_low']) / (df['highest_high'] - df['lowest_low']) * 100
+
+    # 初始 K 與 D 值為 50
+    k_list = [50]
+    d_list = [50]
+
+    for rsv in df['RSV'].iloc[1:]:
+        k_prev = k_list[-1]
+        d_prev = d_list[-1]
+        k = 2/3 * k_prev + 1/3 * rsv
+        d = 2/3 * d_prev + 1/3 * k
+        k_list.append(k)
+        d_list.append(d)
+
+    df = df.iloc[1:]
+    df['K'] = k_list
+    df['D'] = d_list
+    return df
 
 # === 技術指標取得 ===
 def get_ta_data(symbol):
@@ -50,11 +72,12 @@ def get_ta_data(symbol):
         close = df["Adj Close"] if "Adj Close" in df.columns else df["Close"]
 
         current_price = close.iloc[-1]
-
-        stoch = StochasticOscillator(high=df["High"], low=df["Low"], close=close, window=9, smooth_window=9)
-        k = stoch.stoch().iloc[-1]
-        d = stoch.stoch_signal().iloc[-1]
-
+        
+        df["Close"] = close
+        df = calculate_kd(df)
+        k = df["K"].iloc[-1]
+        d = df["D"].iloc[-1]
+        
         macd = MACD(close=close)
         macd_diff = macd.macd().iloc[-1] - macd.macd_signal().iloc[-1]
 
@@ -87,7 +110,7 @@ def watch_all_stock():
         current_price, k, d, macd_diff = data
         print(f">>> {name}：股價 {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
 
-        if k < 20 and macd_diff < 0:
+        if k < 20 and d < 20 and macd_diff < 0:
             if not notified[symbol]:
                 send_email(
                     f"【{name} 警示】KD<20 且 MACD差值<0",
