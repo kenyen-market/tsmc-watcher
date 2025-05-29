@@ -61,12 +61,16 @@ def calculate_kd(df, n=9):
 # === 技術指標取得 ===
 def get_ta_data(symbol):
     try:
-        df = yf.download(symbol, period="60d", interval="1d", progress=False)
+        df = yf.download(symbol, period="90d", interval="1d", progress=False)
         if df.empty or "Close" not in df.columns:
             print(f">>> 抓取 {symbol} 資料失敗")
             return None
 
         df.dropna(inplace=True)
+        if len(df) < 30:  # 根據你用的技術指標所需天數調整
+            print(f">>> 資料量不足，只有 {len(df)} 筆")
+            return None
+            
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
         close = df["Adj Close"] if "Adj Close" in df.columns else df["Close"]
@@ -77,6 +81,9 @@ def get_ta_data(symbol):
         df = calculate_kd(df)
         k = df["K"].iloc[-1]
         d = df["D"].iloc[-1]
+        if pd.isna(k) or pd.isna(d):
+            print(">>> 最新一筆 K 或 D 是 NaN，略過")
+            return None
         
         macd = MACD(close=close)
         macd_diff = macd.macd().iloc[-1] - macd.macd_signal().iloc[-1]
