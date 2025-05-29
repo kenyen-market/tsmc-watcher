@@ -122,8 +122,10 @@ def watch_all_stock():
         if k < 30 and d < 30 and macd_diff < 0:
             if not notified[symbol]:
                 send_email(
+                    f" 嗨，這是自動提醒系統："
                     f"【{name} 警示】KD<30 且 MACD差值<0",
                     f"{name}（{symbol}）\n股價: {current_price:.2f}\nK: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}"
+                    f" 請留意市場波動。 "
                 )
                 notified[symbol] = True
         else:
