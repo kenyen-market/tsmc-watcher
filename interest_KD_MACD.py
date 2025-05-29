@@ -45,9 +45,11 @@ def calculate_kd(df, n=9):
     k_list = [50]
     d_list = [50]
 
-    for rsv in df['RSV'].iloc[1:]:
-        k_prev = k_list[-1]
-        d_prev = d_list[-1]
+    for rsv in df['RSV']:
+        if pd.isna(rsv):
+            k_prev = k_list[-1]
+            d_prev = d_list[-1]
+            continue
         k = 2/3 * k_prev + 1/3 * rsv
         d = 2/3 * d_prev + 1/3 * k
         k_list.append(k)
