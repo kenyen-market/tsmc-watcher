@@ -119,10 +119,10 @@ def watch_all_stock():
         current_price, k, d, macd_diff = data
         print(f">>> {name}：股價 {current_price:.2f}, K: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}")
 
-        if k < 20 and d < 20 and macd_diff < 0:
+        if k < 30 and d < 30 and macd_diff < 0:
             if not notified[symbol]:
                 send_email(
-                    f"【{name} 警示】KD<20 且 MACD差值<0",
+                    f"【{name} 警示】KD<30 且 MACD差值<0",
                     f"{name}（{symbol}）\n股價: {current_price:.2f}\nK: {k:.2f}, D: {d:.2f}, MACD差值: {macd_diff:.4f}"
                 )
                 notified[symbol] = True
@@ -132,4 +132,4 @@ def watch_all_stock():
 # === 主程式 ===
 if __name__ == "__main__":
     print(">>> 系統啟動中...")
-    watch_all_stock()
+    watch_stock()
