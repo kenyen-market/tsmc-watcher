@@ -53,9 +53,9 @@ def calculate_kd(df, n=9):
         k_list.append(k)
         d_list.append(d)
 
-    df = df.iloc[1:]
-    df['K'] = k_list
-    df['D'] = d_list
+    df = df.copy()
+    df['K'] = pd.Series(k_list, index=df.index[-len(k_list):])
+    df['D'] = pd.Series(d_list, index=df.index[-len(d_list):])
     return df
 
 # === 技術指標取得 ===
