@@ -2,11 +2,20 @@ import yfinance as yf
 import pandas as pd
 from ta.momentum import StochasticOscillator
 from ta.trend import MACD
-import pytz
-from datetime import datetime
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from datetime import datetime
+import pytz
+
+def is_check_time():
+    tz = pytz.timezone("Asia/Taipei")
+    now = datetime.now(tz)
+    hour = now.hour
+    minute = now.minute
+
+    # 只在 10:00 與 13:00 當下執行
+    return (hour == 10 and minute == 0) or (hour == 13 and minute == 0)
 
 # === 設定 ===
 STOCKS = {
@@ -104,8 +113,8 @@ def watch_stock():
 
     tz = pytz.timezone("Asia/Taipei")
     now = datetime.now(tz)
-    if now.weekday() >= 5 or not (9 <= now.hour < 14):
-        print(f">>> 非開盤時間（{now.strftime('%Y-%m-%d %H:%M:%S')}），略過")
+    if now.weekday() >= 5:
+        print(">>> 週末不執行，略過")
         return
     print(f">>> 開始檢查股票（{now.strftime('%Y-%m-%d %H:%M:%S')}）")
     watch_all_stock()
