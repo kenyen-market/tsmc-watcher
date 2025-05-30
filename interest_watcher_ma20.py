@@ -8,8 +8,15 @@ from sendgrid.helpers.mail import Mail
 import pandas as pd
 from datetime import datetime
 import pytz
-# === 設定區 ===
-CHECK_INTERVAL = 300  # 每 5 分鐘
+
+def is_check_time():
+    tz = pytz.timezone("Asia/Taipei")
+    now = datetime.now(tz)
+    hour = now.hour
+    minute = now.minute
+
+    # 只在 10:00 與 13:00 當下執行
+    return (hour == 10 and minute == 0) or (hour == 13 and minute == 0)
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 FROM_EMAIL = os.environ.get("FROM_EMAIL")
 TO_EMAIL = os.environ.get("TO_EMAIL")
@@ -103,8 +110,8 @@ def monitor_stock(symbol, name):
 def watch_all_stocks():
     tz = pytz.timezone("Asia/Taipei")
     now = datetime.now(tz)
-    if now.weekday() >= 5 or not (9 <= now.hour < 14):
-        print(f">>> 非開盤時間（{now.strftime('%Y-%m-%d %H:%M:%S')}），略過")
+    if now.weekday() >= 5:
+        print(">>> 週末不執行，略過")
         return
     print(f">>> 開始檢查股票（{now.strftime('%Y-%m-%d %H:%M:%S')}）")
     for symbol, name in STOCKS.items():
