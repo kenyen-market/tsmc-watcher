@@ -2,7 +2,8 @@ name: Run Stocks of interest
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # 每 5 分鐘執行一次
+    - cron: "0 2 * * 1-5"   # 台灣時間 10:00（UTC+8 → UTC 02:00）
+    - cron: "0 5 * * 1-5"   # 台灣時間 13:00（UTC+8 → UTC 05:00）
   workflow_dispatch:
 
 jobs:
