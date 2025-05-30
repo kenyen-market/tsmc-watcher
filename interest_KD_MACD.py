@@ -12,7 +12,10 @@ from sendgrid.helpers.mail import Mail
 STOCKS = {
     "2330.TW": "台積電",
     "2891.TW": "中信金",
-    "00878.TW": "國泰永續高股息"
+    "1216.tw": "統一",
+    "2327.tw": "國巨",
+    "00878.TW": "國泰永續高股息",
+    "00919.tw": "群益台灣精選高息"
 }
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 FROM_EMAIL = os.environ.get("FROM_EMAIL")
