@@ -30,7 +30,20 @@ stock_states = {
         "below_price": 0
     } for symbol in STOCKS
 }
-
+# === 寄 Email ===
+def send_email(subject, content):
+    try:
+        message = Mail(
+            from_email=FROM_EMAIL,
+            to_emails=TO_EMAIL,
+            subject=subject,
+            plain_text_content=content
+        )
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        sg.send(message)
+        print(f">>> Email sent: {subject}")
+    except Exception as e:
+        print(f">>> Email failed: {e}")
 def get_price_data(symbol):
     try:
         df = yf.download(symbol, period="30d", interval="1d", progress=False)
