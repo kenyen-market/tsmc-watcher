@@ -118,5 +118,12 @@ def watch_all_stocks():
         monitor_stock(symbol, name)
 
 if __name__ == "__main__":
-    print(">>> 系統啟動中...")
-    watch_all_stocks()
+    tz = pytz.timezone("Asia/Taipei")
+    now = datetime.now(tz)
+    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    print(f">>> 系統啟動於：{now_str}")
+    send_email(
+        "【監控啟動通知】",
+        f"系統於台灣時間 {now_str} 啟動監控。"
+    ）
+        watch_all_stocks()
