@@ -125,5 +125,5 @@ if __name__ == "__main__":
     send_email(
         "【監控啟動通知】",
         f"系統於台灣時間 {now_str} 啟動監控。"
-    ）
+)
         watch_all_stocks()
