@@ -3,8 +3,8 @@ import pandas as pd
 from ta.momentum import StochasticOscillator
 from ta.trend import MACD
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import smtplib
+from email.message import EmailMessage
 from datetime import datetime
 import pytz
 
@@ -26,24 +26,25 @@ STOCKS = {
     "00878.TW": "國泰永續高股息",
     "00919.tw": "群益台灣精選高息"
 }
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-FROM_EMAIL = os.environ.get("FROM_EMAIL")
-TO_EMAIL = os.environ.get("TO_EMAIL")
 
 # === 狀態追蹤（每支股票獨立）===
 notified = {symbol: False for symbol in STOCKS}
 
 # === 寄 Email ===
+GMAIL_USER = os.environ.get("GMAIL_USER")
+GMAIL_PASS = os.environ.get("GMAIL_PASS")
+
 def send_email(subject, content):
     try:
-        message = Mail(
-            from_email=FROM_EMAIL,
-            to_emails=TO_EMAIL,
-            subject=subject,
-            plain_text_content=content
-        )
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        sg.send(message)
+        msg = EmailMessage()
+        msg.set_content(content)
+        msg["Subject"] = subject
+        msg["From"] = GMAIL_USER
+        msg["To"] = TO_EMAIL
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(GMAIL_USER, GMAIL_PASS)
+            smtp.send_message(msg)
         print(f">>> Email sent: {subject}")
     except Exception as e:
         print(f">>> Email failed: {e}")
