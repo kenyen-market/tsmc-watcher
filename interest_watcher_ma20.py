@@ -17,10 +17,6 @@ def is_check_time():
 
     # 只在 10:00 與 13:00 當下執行
     return (hour == 10 and minute == 0) or (hour == 13 and minute == 0)
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-FROM_EMAIL = os.environ.get("FROM_EMAIL")
-TO_EMAIL = os.environ.get("TO_EMAIL")
-
 STOCKS = {
     "2330.TW": "台積電",
     "2891.TW": "中信金",
@@ -41,16 +37,20 @@ stock_states = {
     } for symbol in STOCKS
 }
 # === 寄 Email ===
+GMAIL_USER = os.environ.get("GMAIL_USER")
+GMAIL_PASS = os.environ.get("GMAIL_PASS")
+
 def send_email(subject, content):
     try:
-        message = Mail(
-            from_email=FROM_EMAIL,
-            to_emails=TO_EMAIL,
-            subject=subject,
-            plain_text_content=content
-        )
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        sg.send(message)
+        msg = EmailMessage()
+        msg.set_content(content)
+        msg["Subject"] = subject
+        msg["From"] = GMAIL_USER
+        msg["To"] = TO_EMAIL
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(GMAIL_USER, GMAIL_PASS)
+            smtp.send_message(msg)
         print(f">>> Email sent: {subject}")
     except Exception as e:
         print(f">>> Email failed: {e}")
