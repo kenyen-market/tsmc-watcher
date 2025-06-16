@@ -3,8 +3,7 @@ import yfinance as yf
 import time
 import threading
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from email.message import EmailMessage
 import pandas as pd
 from datetime import datetime
 import pytz
