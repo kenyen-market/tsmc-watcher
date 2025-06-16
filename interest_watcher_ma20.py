@@ -3,6 +3,7 @@ import yfinance as yf
 import time
 import threading
 import os
+import smtplib
 from email.message import EmailMessage
 import pandas as pd
 from datetime import datetime
