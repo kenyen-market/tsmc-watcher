@@ -33,6 +33,7 @@ notified = {symbol: False for symbol in STOCKS}
 # === 寄 Email ===
 GMAIL_USER = os.environ.get("GMAIL_USER")
 GMAIL_PASS = os.environ.get("GMAIL_PASS")
+TO_EMAIL = os.environ.get("TO_EMAIL")
 
 def send_email(subject, content):
     try:
